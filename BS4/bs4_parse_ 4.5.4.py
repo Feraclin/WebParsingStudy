@@ -14,12 +14,14 @@ async def main():
             shema = 'https://parsinger.ru/html/index3_page_'
             pagen = [shema + link.text + '.html' for link in soup2.find('div', class_='pagen').find_all('a')]
             items = []
-            print(pagen)
         for i in pagen:
             async with session.get(url=i) as r1:
                 print(i)
-                items.append([name.text for name in BeautifulSoup(await r1.text(), 'lxml').find_all('a', class_='name_item')])
-        print(items)
+                links = [name['href'] for name in BeautifulSoup(await r1.text(), 'lxml').find_all('a', class_='name_item')]
+                for j in links:
+                    async with session.get(url=f'https://parsinger.ru/html/{j}') as r2:
+                        items.append(*[int(art.text.split()[1]) for art in BeautifulSoup(await r2.text(), 'lxml').find_all('p', class_='article')])
+        print(sum(items))
         print('finished')
 
 
