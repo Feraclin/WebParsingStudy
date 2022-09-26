@@ -44,17 +44,14 @@ async def write_data(name: List[str], description: List[str], price: List[str], 
 
 async def main(url,
                filename):
-    tasks = []
     await create_file(filename)
     soup = await request_data(url + 'index4_page_1.html')
     pagen = [f'{link.get("href")}' for link in soup.find('div', class_='pagen').find_all('a')]
     logging.info(f'Pages: {pagen}')
     for link in pagen:
-        tasks.append(asyncio.create_task(write_data(*parse_soup(soup=await request_data(url + link)),
-                                                    link=link,
-                                                    filename=filename)))
-    logging.info(f'tasks {datetime.now()}')
-    await asyncio.gather(*tasks)
+        await write_data(*parse_soup(soup=await request_data(url + link)),
+                         link=link,
+                         filename=filename)
 
 if __name__ == '__main__':
     url_host = 'https://parsinger.ru/html/'
